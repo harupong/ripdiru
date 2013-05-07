@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 pid=$$
 date=`date '+%Y-%m-%d-%H_%M'`
