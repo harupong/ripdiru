@@ -12,7 +12,7 @@ fi
 
 if [ $# -ge 2 ]; then
   channel=$1
-  DURATION=`expr $2 \* 60 + 30`
+  DURATION=`expr $2 \* 60 + 15`
 fi
 if [ $# -ge 3 ]; then
   outdir=$3
