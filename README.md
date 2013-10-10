@@ -10,6 +10,6 @@ shell script to rip radiru
 
 ## Special thanks
 
-@matchy2
+[matchy2 (MACHIDA Hideki)](https://github.com/matchy2)
 
  https://gist.github.com/5310409.git 
