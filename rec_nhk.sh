@@ -50,21 +50,15 @@ esac
 #
 # rtmpdump
 #
-#rtmpdump -q \
-#         -r ${rtmp} \
-#         --playpath ${playpath} \
-#         --app "live" \
-#         -W $playerurl \
-#         --live \
-#         --stop ${DURATION} \
-#         -o "/tmp/${channel}_${date}"
-#
-(sleep ${DURATION};echo -n q) | \
-    mplayer -playlist ${aspx} \
-            -benchmark -vo null -ao pcm:file="/tmp/${channel}_${date}.wav" \
-            -really-quiet -quiet
+rtmpdump -q \
+         -r ${rtmp} \
+         --playpath ${playpath} \
+         --app "live" \
+         -W $playerurl \
+         --live \
+         --stop ${DURATION} \
+         -o - | \
+         ffmpeg -loglevel quiet -y -i - \
+         -acodec libmp3lame -ab 64k \
+         "${outdir}/${PREFIX}_${date}.mp3"
 
-ffmpeg -loglevel quiet -y -i "/tmp/${channel}_${date}.wav" -acodec libmp3lame -ab 128k "${outdir}/${PREFIX}_${date}.mp3"
-if [ $? = 0 ]; then
-  rm -f "/tmp/${channel}_${date}.wav"
-fi
