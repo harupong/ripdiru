@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Ripdiru::VERSION
   spec.authors       = ["harupong"]
   spec.email         = ["harupong@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
+  spec.description   = %q{Radiru*Radiru ripper}
+  spec.summary       = %q{Streams and rips NHK radio programs}
   spec.homepage      = ""
   spec.license       = "MIT"
 
