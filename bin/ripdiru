@@ -10,46 +10,58 @@ require 'fileutils'
 
 class DownloadTask
 
-  PLAYER_URL = "http://radiko.jp/player/swf/player_3.0.0.01.swf"
+  PLAYER_URL = "http://www3.nhk.or.jp/netradio/files/swf/rtmpe.swf"
   TMPDIR = ENV['TMPDIR'] || '/tmp'
 
   attr_accessor :station, :cache, :buffer, :outdir, :bitrate
 
   def initialize(station = nil, duration = 1800, *args)
     unless station
-      abort "Usage: ripdiko [station-id]"
+      abort "Usage: ripdiru [station-id]"
     end
     @station = station
+    @channel = channel
     @duration = duration
     @cache = CacheDir.new(TMPDIR)
-    @buffer = ENV['RIPDIKO_BUFFER'] || 60
-    @outdir = ENV['RIPDIKO_OUTDIR'] || "#{ENV['HOME']}/Music/Radiko"
-    @bitrate = ENV['RIPDIKO_BITRATE'] || '64k'
+    @buffer = ENV['RIPDIRU_BUFFER'] || 60
+    @outdir = ENV['RIPDIRU_OUTDIR'] || "#{ENV['HOME']}/Music/Radiko"
+    @bitrate = ENV['RIPDIRU_BITRATE'] || '64k'
+  end
+
+  def channel
+    case @station
+      when "NHK1"
+        @rtmp="rtmpe://netradio-r1-flash.nhk.jp"
+        @playpath="NetRadio_R1_flash@63346"
+      when "NHK2"
+        @rtmp="rtmpe://netradio-r2-flash.nhk.jp"
+        @playpath="NetRadio_R2_flash@63342"
+      when "FM"
+        @rtmp="rtmpe://netradio-fm-flash.nhk.jp"
+        @playpath="NetRadio_FM_flash@63343"
+      else
+        puts "invalid channel"
+    end
   end
 
   def run
-    duration = #second argument
+    starting = DateTime.now.strftime("%Y%m%d%H%M%S")
 
-    tempfile = "#{TMPDIR}/#{program.id}.mp3"
-    puts "Streaming #{program.title} ~ #{program.to.strftime("%H:%M")} (Recording duration: #{duration}s)"
+    duration = @duration
+
+    tempfile = "#{TMPDIR}/#{@station}.mp3"
+    puts "Streaming #{@station} - (Recording duration: #{duration}s)"
     puts "Ripping audio file to #{tempfile}"
 
     command = %W(
       rtmpdump --live --quiet
-      -r rtmpe://w-radiko.smartstream.ne.jp
-      --playpath simul-stream.stream
-      --app #{station}/_definst_
+      -r #{@rtmp}
+      --playpath #{@playpath}
+      --app "live"
       -W #{PLAYER_URL}
-      -C S:"" -C S:"" -C S:"" -C S:#{token}
       --live --stop #{duration} -o - |
       ffmpeg -y -i - -vn
       -loglevel error
-      -metadata author="#{program.performer}"
-      -metadata artist="#{program.station}"
-      -metadata title="#{program.title} #{program.effective_date.strftime}"
-      -metadata album="#{program.title}"
-      -metadata genre=Radio
-      -metadata year="#{program.effective_date.year}"
       -acodec libmp3lame -ar 44100 -ab #{bitrate} -ac 2
       #{tempfile}
     )
@@ -57,7 +69,7 @@ class DownloadTask
     system command.join(" ")
 
     FileUtils.mkpath(outdir)
-    File.rename tempfile, "#{outdir}/#{program.id}.mp3"
+    File.rename tempfile, "#{outdir}/#{starting}-#{@station}.mp3"
 
   end
 
