@@ -1,0 +1,94 @@
+#!/usr/bin/env ruby
+
+require 'net/https'
+require 'uri'
+require 'pathname'
+require 'base64'
+require 'open-uri'
+require 'date'
+require 'fileutils'
+
+class DownloadTask
+
+  PLAYER_URL = "http://www3.nhk.or.jp/netradio/files/swf/rtmpe.swf"
+  TMPDIR = ENV['TMPDIR'] || '/tmp'
+
+  attr_accessor :station, :cache, :buffer, :outdir, :bitrate
+
+  def initialize(station = nil, duration = 1800, *args)
+    unless station
+      abort "Usage: ripdiru [station-id]"
+    end
+    @station = station
+    @channel = channel
+    @duration = duration
+    @cache = CacheDir.new(TMPDIR)
+    @buffer = ENV['RIPDIRU_BUFFER'] || 60
+    @outdir = ENV['RIPDIRU_OUTDIR'] || "#{ENV['HOME']}/Music/Radiko"
+    @bitrate = ENV['RIPDIRU_BITRATE'] || '64k'
+  end
+
+  def channel
+    case @station
+      when "NHK1"
+        @rtmp="rtmpe://netradio-r1-flash.nhk.jp"
+        @playpath="NetRadio_R1_flash@63346"
+      when "NHK2"
+        @rtmp="rtmpe://netradio-r2-flash.nhk.jp"
+        @playpath="NetRadio_R2_flash@63342"
+      when "FM"
+        @rtmp="rtmpe://netradio-fm-flash.nhk.jp"
+        @playpath="NetRadio_FM_flash@63343"
+      else
+        puts "invalid channel"
+    end
+  end
+
+  def run
+    starting = DateTime.now.strftime("%Y%m%d%H%M%S")
+
+    duration = @duration
+
+    tempfile = "#{TMPDIR}/#{@station}.mp3"
+    puts "Streaming #{@station} - (Recording duration: #{duration}s)"
+    puts "Ripping audio file to #{tempfile}"
+
+    command = %W(
+      rtmpdump --live --quiet
+      -r #{@rtmp}
+      --playpath #{@playpath}
+      --app "live"
+      -W #{PLAYER_URL}
+      --live --stop #{duration} -o - |
+      ffmpeg -y -i - -vn
+      -loglevel error
+      -acodec libmp3lame -ar 44100 -ab #{bitrate} -ac 2
+      #{tempfile}
+    )
+
+    system command.join(" ")
+
+    FileUtils.mkpath(outdir)
+    File.rename tempfile, "#{outdir}/#{starting}-#{@station}.mp3"
+
+  end
+
+  def abort(msg)
+    puts msg
+    exit 1
+  end
+end
+
+class CacheDir
+  attr_accessor :dir
+  def initialize(dir)
+    @dir = dir
+    @paths = {}
+  end
+
+  def [](name)
+    @paths[name] ||= Pathname.new(File.join(@dir, name))
+  end
+end
+
+DownloadTask.new(*ARGV).run
