@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'net/https'
+require 'nokogiri'
 require 'uri'
 require 'pathname'
 require 'base64'
@@ -25,7 +26,7 @@ class DownloadTask
     @cache = CacheDir.new(TMPDIR)
     @buffer = ENV['RIPDIRU_BUFFER'] || 60
     @outdir = ENV['RIPDIRU_OUTDIR'] || "#{ENV['HOME']}/Music/Radiko"
-    @bitrate = ENV['RIPDIRU_BITRATE'] || '64k'
+    @bitrate = ENV['RIPDIRU_BITRATE'] || '48k'
   end
 
   def channel
@@ -44,13 +45,44 @@ class DownloadTask
     end
   end
 
+  def val(node, xpath)
+    node.xpath(".//#{xpath}").first.content
+  end
+
+  def parse_time(str)
+    DateTime.strptime("#{str}+0900", "%Y-%m-%d %H:%M:%S%Z").to_time
+  end
+
+  def now_playing(station)
+    now = Time.now
+    doc = Nokogiri::XML(open("http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"))
+
+#    node = doc.xpath(".//program")
+    node = doc.xpath(%Q|.//program|)
+    node.xpath(".//item").each do |item|
+      from, to = parse_time(item[:starttime]), parse_time(prog[:endtime])
+      start_time = now.to_i + buffer
+      if from.to_i <= start_time && start_time < to.to_i
+        return Program.new(
+          id: "#{item[:date]}-#{item[:eventid]}-#{station}",
+          station: station,
+          title: val(item, :title),
+          from: from,
+          to: to,
+          duration: to.to_i - from.to_i,
+          info: val(item, :link),
+        )
+      end
+    end
+  end
+
   def run
-    starting = DateTime.now.strftime("%Y%m%d%H%M%S")
+    program = now_playing(station)
 
-    duration = @duration
+    duration = program.recording_duration + buffer
 
-    tempfile = "#{TMPDIR}/#{@station}.mp3"
-    puts "Streaming #{@station} - (Recording duration: #{duration}s)"
+    tempfile = "#{TMPDIR}/#{program.id}.mp3"
+    puts "Streaming #{program.title} ~ #{program.to.strftime("%H:%M")} (#{duration}s)"
     puts "Ripping audio file to #{tempfile}"
 
     command = %W(
@@ -69,13 +101,31 @@ class DownloadTask
     system command.join(" ")
 
     FileUtils.mkpath(outdir)
-    File.rename tempfile, "#{outdir}/#{starting}-#{@station}.mp3"
+    File.rename tempfile, "#{outdir}/#{program.id}.mp3"
 
   end
 
   def abort(msg)
     puts msg
     exit 1
+  end
+end
+
+class Program
+  attr_accessor :id, :station, :title, :from, :to, :duration, :info
+  def initialize(args = {})
+    args.each do |k, v|
+      send "#{k}=", v
+    end
+  end
+
+  def effective_date
+    time = from.hour < 5 ? from - 24 * 60 * 60 : from
+    Date.new(time.year, time.month, time.day)
+  end
+
+  def recording_duration
+    (to - Time.now).to_i
   end
 end
 
