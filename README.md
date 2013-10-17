@@ -1,6 +1,6 @@
-# Ripdiru
+# ripdiru
 
-ruby gem to rip Radiru\*Radiru, NHK netradio
+ripdiru rips and saves Radiru\*Radiru, NHK netradio, in MP3.  Metadata such as title and duration are automatically embeded to MP3s with the data fetched from the supposedly unofficial API.
 
 ## Installation
 
@@ -18,18 +18,37 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Set up environment variables:
 
-## TODO
+- `RIPDIRU_OUTDIR`: Output directory to save ripped MP3 files. Defaults to `~/Music/Radiru`
+- `RIPDIRU_BITRATE`: Bitrate for re-encoded MP3. 48kbps by default (Radiko upstram is served around 48kbps)
 
-- add metadata w/ radiru API
-  - らじる★らじるの番組表API - 別館 子子子子子子（ねこのここねこ） http://d.hatena.ne.jp/riocampos+tech/20130405/1365145830
+Run `ripdiru <station-id>` and the recording will start/stop automatically.  Currently supported stations are as follows:
 
-## Special thanks
+- `NHK1`: Radio-1st(ラジオ第1)
+- `NHK2`: Radio-2nd(ラジオ第2)
+- `FM`: NHK-FM
 
-[matchy2 (MACHIDA Hideki)](https://github.com/matchy2)
+## Requirements
 
- https://gist.github.com/5310409.git 
+Recommended to install the following:
+
+- Ruby 1.9
+- Nokogiri
+- rtmpdump
+- ffmpeg
+
+## Special thanks to
+
+- [matchy2 (MACHIDA Hideki)](https://github.com/matchy2), for the shell script to rip Radiru\*Radiru https://gist.github.com/5310409.git
+
+- [miyagawa (Tatsuhiko Miyagawa)](https://github.com/miyagawa/), for `ripdiko` from which I shamelessly copy-pasted most of the code.
+
+- [riocampos](https://github.com/riocampos/), for all the research published on the [blog](http://d.hatena.ne.jp/riocampos+tech/)
+
+## Author
+
+Haruo Nakayama (@harupong)
 
 ## Contributing
 
