@@ -97,7 +97,14 @@ class DownloadTask
       --live --stop #{duration} -o - |
       ffmpeg -y -i - -vn
       -loglevel error
+      -metadata author="NHK"
+      -metadata artist="#{program.station}"
+      -metadata title="#{program.title} #{program.effective_date.strftime}"
+      -metadata album="#{program.title}"
+      -metadata genre=Radio
+      -metadata year="#{program.effective_date.year}"
       -acodec libmp3lame -ar 44100 -ab #{bitrate} -ac 2
+      -id3v2_version 3
       #{tempfile}
     )
 
