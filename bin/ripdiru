@@ -54,16 +54,17 @@ class DownloadTask
   end
 
   def now_playing(station)
+    today = Date.today
     now = Time.now
     doc = Nokogiri::XML(open("http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"))
 
     node = doc.xpath("//program").first
     node.xpath(".//item").each do |item|
-      from, to = parse_time(item.xpath(".//starttime").text), parse_time(item.xpath(".//endtime").text)
+      from, to = parse_time(val(item, "starttime")), parse_time(val(item, "endtime"))
       start_time = now.to_i + buffer
       if from.to_i <= start_time && start_time < to.to_i
         return Program.new(
-          id: "#{from}-#{station}",
+          id: now.strftime("%Y%m%d%H%M%S") + "-#{station}",
           station: station,
           title: val(item, "title"),
           from: from,
