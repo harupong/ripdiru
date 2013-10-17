@@ -46,7 +46,7 @@ class DownloadTask
   end
 
   def val(node, xpath)
-    node.xpath(".//#{xpath}").first.content
+    node.xpath(".//#{xpath}").text
   end
 
   def parse_time(str)
@@ -57,20 +57,19 @@ class DownloadTask
     now = Time.now
     doc = Nokogiri::XML(open("http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"))
 
-#    node = doc.xpath(".//program")
-    node = doc.xpath(%Q|.//program|)
+    node = doc.xpath("//program").first
     node.xpath(".//item").each do |item|
-      from, to = parse_time(item[:starttime]), parse_time(prog[:endtime])
+      from, to = parse_time(item.xpath(".//starttime").text), parse_time(item.xpath(".//endtime").text)
       start_time = now.to_i + buffer
       if from.to_i <= start_time && start_time < to.to_i
         return Program.new(
-          id: "#{item[:date]}-#{item[:eventid]}-#{station}",
+          id: "#{from}-#{station}",
           station: station,
-          title: val(item, :title),
+          title: val(item, "title"),
           from: from,
           to: to,
           duration: to.to_i - from.to_i,
-          info: val(item, :link),
+          info: val(item, "link"),
         )
       end
     end
