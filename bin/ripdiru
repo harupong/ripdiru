@@ -30,16 +30,19 @@ class DownloadTask
   end
 
   def channel
-    case @station
+    case station
       when "NHK1"
         @rtmp="rtmpe://netradio-r1-flash.nhk.jp"
         @playpath="NetRadio_R1_flash@63346"
+        @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"
       when "NHK2"
         @rtmp="rtmpe://netradio-r2-flash.nhk.jp"
         @playpath="NetRadio_R2_flash@63342"
+        @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr2"
       when "FM"
         @rtmp="rtmpe://netradio-fm-flash.nhk.jp"
         @playpath="NetRadio_FM_flash@63343"
+        @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netfm"
       else
         puts "invalid channel"
     end
@@ -56,7 +59,7 @@ class DownloadTask
   def now_playing(station)
     today = Date.today
     now = Time.now
-    doc = Nokogiri::XML(open("http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"))
+    doc = Nokogiri::XML(open(@xmlpath))
 
     node = doc.xpath("//program").first
     node.xpath(".//item").each do |item|
