@@ -25,7 +25,7 @@ class DownloadTask
     @duration = duration
     @cache = CacheDir.new(TMPDIR)
     @buffer = ENV['RIPDIRU_BUFFER'] || 60
-    @outdir = ENV['RIPDIRU_OUTDIR'] || "#{ENV['HOME']}/Music/Radiko"
+    @outdir = ENV['RIPDIRU_OUTDIR'] || "#{ENV['HOME']}/Music/Radiru"
     @bitrate = ENV['RIPDIRU_BITRATE'] || '48k'
   end
 
