@@ -42,7 +42,7 @@ Recommended to install the following:
 
 - [matchy2 (MACHIDA Hideki)](https://github.com/matchy2), for the shell script to rip Radiru\*Radiru https://gist.github.com/5310409.git
 
-- [miyagawa (Tatsuhiko Miyagawa)](https://github.com/miyagawa/), for `ripdiko` from which I shamelessly copy-pasted most of the code.
+- [miyagawa (Tatsuhiko Miyagawa)](https://github.com/miyagawa/), for [ripdiko](https://github.com/miyagawa/ripdiko), from which I shamelessly copy-pasted most of the code.
 
 - [riocampos](https://github.com/riocampos/), for all the research published on the [blog](http://d.hatena.ne.jp/riocampos+tech/)
 
