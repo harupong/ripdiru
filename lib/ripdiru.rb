@@ -37,14 +37,17 @@ module Ripdiru
           @rtmp="rtmpe://netradio-r1-flash.nhk.jp"
           @playpath="NetRadio_R1_flash@63346"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"
+          @aspx="http://mfile.akamai.com/129931/live/reflector:46032.asx"
         when "NHK2"
           @rtmp="rtmpe://netradio-r2-flash.nhk.jp"
           @playpath="NetRadio_R2_flash@63342"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr2"
+          @aspx="http://mfile.akamai.com/129932/live/reflector:46056.asx"
         when "FM"
           @rtmp="rtmpe://netradio-fm-flash.nhk.jp"
           @playpath="NetRadio_FM_flash@63343"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netfm"
+          @aspx="http://mfile.akamai.com/129933/live/reflector:46051.asx"
         else
           puts "invalid channel"
       end
@@ -81,6 +84,12 @@ module Ripdiru
       end
     end
   
+    def mms_url
+      doc = Nokogiri::HTML(open(@aspx))
+      mms_url = doc.xpath(".//ref").attribute("href").text
+      mms_url.sub!("mms://", "mmsh://")
+    end
+
     def run
       program = now_playing(station)
   
