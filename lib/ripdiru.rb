@@ -93,7 +93,6 @@ module Ripdiru
       puts "Ripping audio file to #{tempfile}"
   
       command = %W(
-        timeout --foreground -s 2 #{duration}
         ffmpeg -y -i #{mms_url} -vn
         -loglevel error
         -metadata author="NHK"
@@ -104,7 +103,8 @@ module Ripdiru
         -metadata year="#{program.effective_date.year}"
         -acodec libmp3lame -ar 44100 -ab #{bitrate} -ac 2
         -id3v2_version 3
-        #{tempfile}
+        #{tempfile} &
+        sleep #{duration}; kill $!
       )
   
       system command.join(" ")
