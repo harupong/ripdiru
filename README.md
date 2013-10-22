@@ -35,12 +35,11 @@ Recommended to install the following:
 
 - Ruby 1.9
 - Nokogiri
-- rtmpdump
 - ffmpeg
 
 ## Special thanks to
 
-- [matchy2 (MACHIDA Hideki)](https://github.com/matchy2), for the shell script to rip Radiru\*Radiru https://gist.github.com/5310409.git
+- [matchy2 (MACHIDA Hideki)](https://github.com/matchy2), for the shell script to rip Radiru\*Radiru https://gist.github.com/matchy2/5310409
 
 - [miyagawa (Tatsuhiko Miyagawa)](https://github.com/miyagawa/), for [ripdiko](https://github.com/miyagawa/ripdiko), from which I shamelessly copy-pasted most of the code.
 
