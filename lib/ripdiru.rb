@@ -13,7 +13,6 @@ require 'fileutils'
 module Ripdiru
   class DownloadTask
   
-    PLAYER_URL = "http://www3.nhk.or.jp/netradio/files/swf/rtmpe.swf"
     TMPDIR = ENV['TMPDIR'] || '/tmp'
   
     attr_accessor :station, :cache, :buffer, :outdir, :bitrate
@@ -34,18 +33,12 @@ module Ripdiru
     def channel
       case station
         when "NHK1"
-          @rtmp="rtmpe://netradio-r1-flash.nhk.jp"
-          @playpath="NetRadio_R1_flash@63346"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"
           @aspx="http://mfile.akamai.com/129931/live/reflector:46032.asx"
         when "NHK2"
-          @rtmp="rtmpe://netradio-r2-flash.nhk.jp"
-          @playpath="NetRadio_R2_flash@63342"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr2"
           @aspx="http://mfile.akamai.com/129932/live/reflector:46056.asx"
         when "FM"
-          @rtmp="rtmpe://netradio-fm-flash.nhk.jp"
-          @playpath="NetRadio_FM_flash@63343"
           @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netfm"
           @aspx="http://mfile.akamai.com/129933/live/reflector:46051.asx"
         else
