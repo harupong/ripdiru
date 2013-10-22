@@ -100,13 +100,8 @@ module Ripdiru
       puts "Ripping audio file to #{tempfile}"
   
       command = %W(
-        rtmpdump --live --quiet
-        -r #{@rtmp}
-        --playpath #{@playpath}
-        --app "live"
-        -W #{PLAYER_URL}
-        --live --stop #{duration} -o - |
-        ffmpeg -y -i - -vn
+        timeout --foreground -s 2 #{duration}
+        ffmpeg -y -i #{mms_url} -vn
         -loglevel error
         -metadata author="NHK"
         -metadata artist="#{program.station}"
