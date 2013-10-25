@@ -3,6 +3,7 @@
 require "ripdiru/version"
 require 'net/https'
 require 'nokogiri'
+require 'rexml/document'
 require 'uri'
 require 'pathname'
 require 'base64'
@@ -76,10 +77,12 @@ module Ripdiru
         end
       end
     end
-  
+
     def mms_url
-      doc = Nokogiri::HTML(open(@aspx))
-      mms_url = doc.xpath(".//ref").attribute("href").text
+      f = open(@aspx)
+      doc = REXML::Document.new(f)
+    
+      mms_url =  REXML::XPath.first(doc, "//ENTRY/REF").attribute("HREF").to_s
       mms_url.sub!("mms://", "mmsh://")
     end
 
