@@ -2,7 +2,6 @@
 
 require "ripdiru/version"
 require 'net/https'
-require 'nokogiri'
 require 'rexml/document'
 require 'uri'
 require 'pathname'
@@ -15,6 +14,7 @@ module Ripdiru
   class DownloadTask
   
     TMPDIR = ENV['TMPDIR'] || '/tmp'
+    SCHEDULE_URL = "http://www2.nhk.or.jp/hensei/api/noa.cgi?c=3&wide=1&mode=json"
   
     attr_accessor :station, :cache, :buffer, :outdir, :bitrate
   
@@ -34,21 +34,21 @@ module Ripdiru
     def channel
       case station
         when "NHK1"
-          @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr1"
           @aspx="http://mfile.akamai.com/129931/live/reflector:46032.asx"
+          @mms_ch="netr1"
         when "NHK2"
-          @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netr2"
           @aspx="http://mfile.akamai.com/129932/live/reflector:46056.asx"
+          @mms_ch="netr2"
         when "FM"
-          @xmlpath="http://cgi4.nhk.or.jp/hensei/api/sche-nr.cgi?tz=all&ch=netfm"
           @aspx="http://mfile.akamai.com/129933/live/reflector:46051.asx"
+          @mms_ch="netfm"
         else
           puts "invalid channel"
       end
     end
   
-    def val(node, xpath)
-      node.xpath(".//#{xpath}").text
+    def val(element, path)
+      element.get_text(path)
     end
   
     def parse_time(str)
@@ -58,13 +58,14 @@ module Ripdiru
     def now_playing(station)
       today = Date.today
       now = Time.now
-      doc = Nokogiri::XML(open(@xmlpath))
+
+      f = open(SCHEDULE_URL)
+      xml = REXML::Document.new(f)
   
-      node = doc.xpath("//program").first
-      node.xpath(".//item").each do |item|
-        from, to = parse_time(val(item, "starttime")), parse_time(val(item, "endtime"))
-        start_time = now.to_i + buffer
-        if from.to_i <= start_time && start_time < to.to_i
+      REXML::XPath.each(xml, "//item") do |item|
+        if val(item, "ch") == @mms_ch && val(item, "index") == '0'
+          from, to = parse_time(val(item, "starttime")), parse_time(val(item, "endtime"))
+          start_time = now.to_i + buffer
           return Program.new(
             id: now.strftime("%Y%m%d%H%M%S") + "-#{station}",
             station: station,
