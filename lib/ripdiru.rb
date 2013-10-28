@@ -56,7 +56,6 @@ module Ripdiru
     end
   
     def now_playing(station)
-      today = Date.today
       now = Time.now
 
       f = open(SCHEDULE_URL)
