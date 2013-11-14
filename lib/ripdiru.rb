@@ -106,8 +106,8 @@ module Ripdiru
         -metadata year="#{program.effective_date.year}"
         -acodec libmp3lame -ar 44100 -ab #{bitrate} -ac 2
         -id3v2_version 3
-        #{tempfile} &
-        sleep #{duration}; kill $!
+        -t #{duration}
+        #{tempfile}
       )
   
       system command.join(" ")
