@@ -110,6 +110,7 @@ module Ripdiru
         #{tempfile}
       )
 
+      Signal.trap(:INT) { puts "Recording interupted by user"}
       system command.join(" ")
 
       FileUtils.mkpath(outdir)
